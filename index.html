@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كراسة الخط - النظام الأفقي (6 مربعات)</title>
+    <title>دفتر الخط الشامل - كلمات وجمل</title>
     
-    <!-- استيراد جميع الخطوط -->
+    <!-- استيراد الخطوط -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Reem+Kufi:wght@400;700&display=swap');
 
-        /* إجبار المتصفح على طباعة الألوان بدقة */
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
-            background-color: #2c3e50;
+            background-color: #1e272e;
             margin: 0;
             padding: 20px;
             display: flex;
@@ -25,18 +25,23 @@
             align-items: center;
         }
 
+        /* لوحة التحكم */
         .header-panel {
-            background: white;
-            padding: 20px 40px;
+            background: #ffffff;
+            padding: 20px 30px;
             border-radius: 10px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
             margin-bottom: 30px;
-            width: 90%;
+            width: 95%;
             max-width: 900px;
+            border-bottom: 5px solid #0984e3;
         }
 
-        .header-panel h1 { margin: 0 0 10px 0; color: #2c3e50; }
+        .header-panel h1 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+        }
 
         .controls {
             display: flex;
@@ -44,228 +49,311 @@
             align-items: center;
             gap: 15px;
             flex-wrap: wrap;
-            margin-top: 15px;
+            background: #f1f2f6;
             padding: 15px;
-            background: #ecf0f1;
             border-radius: 8px;
         }
 
         select, .btn-download {
-            padding: 12px 20px;
-            font-size: 18px;
+            padding: 10px 15px;
+            font-size: 16px;
             font-weight: bold;
-            border-radius: 5px;
+            border-radius: 6px;
+            border: 2px solid #0984e3;
             cursor: pointer;
-            font-family: inherit;
+            outline: none;
         }
 
-        select { border: 2px solid #e67e22; outline: none; }
-        
         .btn-download {
-            background-color: #e67e22;
+            background-color: #00b894;
             color: white;
             border: none;
             transition: 0.3s;
-            box-shadow: 0 4px 6px rgba(230, 126, 34, 0.4);
         }
-        .btn-download:hover { background-color: #d35400; }
+        .btn-download:hover { background-color: #00a885; }
 
-        .instructions { color: #c0392b; font-weight: bold; margin-top: 15px; }
-
+        /* -------------------------------------
+           تصميم الدفتر (لا يوجد إطارات)
+           ------------------------------------- */
         #pdf-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
             gap: 20px;
             width: 100%;
+            align-items: center;
         }
 
-        /* -------------------------------------
-           هندسة الورقة: A4 بالعرض (Landscape)
-           المقاسات مقلوبة: العرض 297 والطول 210
-           ------------------------------------- */
-        .a4-paper-landscape {
-            width: 297mm;
-            height: 210mm;
+        .a4-paper {
+            width: 210mm;
+            height: 297mm;
             background-color: white;
-            box-sizing: border-box;
-            padding: 12mm 15mm; /* هوامش متوازنة */
-            position: relative;
+            padding: 12mm 15mm; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             page-break-after: always;
-            overflow: hidden;
             flex-shrink: 0;
-        }
-
-        /* شبكة من 6 مربعات (3 أعمدة × صفين) */
-        .grid-6-blocks {
+            
+            /* تقسيم الورقة لـ 4 مربعات وهمية (2 يمين، 2 يسار) */
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr; /* يمين، وسط، يسار */
-            grid-template-rows: 1fr 1fr;        /* أعلى، أسفل */
-            column-gap: 12mm; /* مسافة بين الأعمدة */
-            row-gap: 8mm;     /* مسافة بين الصفوف */
-            height: 100%;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            column-gap: 15mm; 
         }
 
-        .practice-block {
+        .quadrant {
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
         }
 
-        /* إعدادات السطر الواحد (تم تصغير الارتفاع قليلاً ليتسع في الورقة الأفقية) */
-        .line-row {
-            height: 1.3cm; 
-            line-height: 1.1cm;
-            border-bottom: 1.5px solid #a4b0be; 
+        /* -------------------------------------
+           تصميم السطور المدرسية
+           ------------------------------------- */
+        .notebook-line {
+            position: relative;
+            width: 100%;
+            height: 1.1cm; 
+            display: flex;
+            align-items: flex-end; 
+            margin-bottom: 2px;
             white-space: nowrap;
-            overflow: hidden; 
-            padding-right: 5px;
-            box-sizing: border-box;
         }
 
-        /* الألوان وأنواع الأسطر */
-        .master { color: #000; font-weight: bold; }
-        .trace { color: #d1d8e0; }
-        .empty { color: transparent; border-bottom: 1.5px dashed #a4b0be; } 
+        /* تنسيق لتوزيع الكلمات المتكررة */
+        .line-words { justify-content: space-between; }
+        
+        /* تنسيق لمركزة الجمل المفيدة لتملأ السطر */
+        .line-sentence { justify-content: center; }
 
-        /* أحجام الخطوط (عادت كبيرة بفضل الورقة الأفقية) */
-        #pdf-container.font-ruqaa .line-row { font-family: 'Aref Ruqaa', serif; font-size: 32px; }
-        #pdf-container.font-naskh .line-row { font-family: 'Amiri', serif; font-size: 28px; }
-        #pdf-container.font-noto .line-row { font-family: 'Noto Naskh Arabic', serif; font-size: 24px; }
-        #pdf-container.font-kufi .line-row { font-family: 'Reem Kufi', sans-serif; font-size: 22px; }
+        /* سطر الارتكاز لحماية الحروف (ح، ێ، ڵ، ي) */
+        .notebook-line::after {
+            content: '';
+            position: absolute;
+            bottom: 6px; 
+            left: 0;
+            right: 0;
+            height: 1.5px;
+            background-color: #a4b0be; /* لون سطر الدفتر */
+            z-index: 1;
+        }
 
-        /* الطباعة الأصلية (تم إخبار المتصفح أن يطبع بالعرض Landscape) */
-        @page { size: A4 landscape; margin: 0; }
+        .text-span {
+            padding-bottom: 6px; 
+            line-height: 1;
+            z-index: 2;
+        }
+
+        /* -------------------------------------
+           ألوان الخطوط
+           ------------------------------------- */
+        .text-master { color: #000000; font-weight: bold; }
+        
+        /* مفرغ (إطار خارجي للتلوين) */
+        .text-trace { 
+            color: transparent; 
+            -webkit-text-stroke: 1px #b2bec3; 
+        }
+
+        /* مظلل (رمادي) */
+        .text-shadow { color: #b2bec3; }
+
+        /* سطر فارغ مخفي تماماً لكن يحفظ المساحة */
+        .text-empty { visibility: hidden; }
+
+        /* ضبط أحجام الخطوط (للجمل تكون أصغر قليلاً لتتسع في العمود) */
+        #pdf-container.font-ruqaa .text-span { font-family: 'Aref Ruqaa', serif; font-size: 26px; }
+        #pdf-container.font-naskh .text-span { font-family: 'Amiri', serif; font-size: 22px; }
+        #pdf-container.font-noto .text-span { font-family: 'Noto Naskh Arabic', serif; font-size: 20px; }
+        #pdf-container.font-kufi .text-span { font-family: 'Reem Kufi', sans-serif; font-size: 19px; padding-bottom: 10px;}
+
         @media print {
             body { background: white; padding: 0; margin: 0; }
             .header-panel { display: none !important; }
-            #pdf-container { gap: 0; display: block; }
-            .a4-paper-landscape { box-shadow: none; margin: 0; border: none; }
+            #pdf-container { gap: 0; }
+            .a4-paper { box-shadow: none; border: none; }
         }
     </style>
 </head>
 <body>
 
     <div class="header-panel">
-        <h1>كراسة الخط - النظام الأفقي (6 مربعات للصفحة)</h1>
-        <p>الورقة مقسمة إلى: (يمين، وسط، يسار) مع الحفاظ على حجم الخط الكبير والمريح</p>
+        <h1>كراسة الخط - (15 صفحة جمل عربية + 10 جمل كردية + كلمات)</h1>
         
         <div class="controls">
-            <label for="fontSelector"><strong>اختر نوع الخط:</strong></label>
-            <select id="fontSelector" onchange="changeFont()">
-                <option value="font-ruqaa">خط الرقعة (للكتابة اليومية)</option>
-                <option value="font-naskh">خط النسخ الأصيل (للقرآن والكتب)</option>
-                <option value="font-noto">النسخ المدرسي (واضح للمبتدئين)</option>
-                <option value="font-kufi">الخط الكوفي (هندسي)</option>
+            <select id="fontSelector" onchange="updateSettings()">
+                <option value="font-ruqaa">خط الرقعة</option>
+                <option value="font-naskh">خط النسخ</option>
+                <option value="font-noto">النسخ المدرسي</option>
+                <option value="font-kufi">الخط الكوفي</option>
             </select>
-            <button class="btn-download" onclick="window.print()">📥 حفظ الكراسة (PDF بالعرض)</button>
+
+            <select id="traceSelector" onchange="updateSettings()">
+                <option value="text-trace">منقط / مفرغ (للتلوين والتنقيط)</option>
+                <option value="text-shadow">مظلل (رمادي باهت)</option>
+            </select>
+
+            <button class="btn-download" onclick="window.print()">📥 حفظ / طباعة (PDF)</button>
         </div>
-        
-        <div class="instructions">⚠️ ملاحظة: عند حفظ الـ PDF، ستكون الصفحات بالعرض (Landscape) تلقائياً لتتسع للـ 6 مربعات.</div>
     </div>
 
-    <!-- حاوية الصفحات الـ 50 -->
-    <div id="pdf-container" class="font-ruqaa">
-        <!-- سيتم التوليد هنا -->
-    </div>
+    <!-- حاوية الدفتر -->
+    <div id="pdf-container" class="font-ruqaa"></div>
 
     <script>
-        function changeFont() {
-            document.getElementById('pdf-container').className = document.getElementById('fontSelector').value;
+        function updateSettings() {
+            const font = document.getElementById('fontSelector').value;
+            const traceStyle = document.getElementById('traceSelector').value;
+            
+            document.getElementById('pdf-container').className = font;
+
+            const traceElements = document.querySelectorAll('.dynamic-trace');
+            traceElements.forEach(el => {
+                // إزالة الكلاسات القديمة المتعلقة باللون
+                el.classList.remove('text-trace', 'text-shadow');
+                // إضافة الكلاس الجديد
+                el.classList.add(traceStyle);
+            });
         }
 
-        // --- 1. البيانات الأساسية ---
-        const baseArabicSingle = [
-            "ا ل ك ط ظ", "ب ت ث ف", "ج ح خ", "د ذ ر ز", "س ش ص ض", "ع غ ق ف", "م ن هـ و ي", "لا ـلا", "أب أخ أم", "جد عم خال",
-            "باب بيت نور", "قمر شمس نجم", "سيف رمح قوس", "علم عمل أمل", "صدق صبر شكر", "قلب عقل روح", "بحر نهر موج", "ورد زهر شجر", "أسد فهد نمر", "صقر نسر طير",
-            "ماء هواء نار", "أرض سماء غيم", "ليل نهار فجر", "كتاب دفتر قلم", "مدرسة جامعة", "طبيب مهندس", "وطن أمان سلام", "صدق وفاء", "العلم نور", "الجهل ظلام"
+        // ==========================================
+        // 1. قواعد البيانات (كلمات وجمل مفيدة)
+        // ==========================================
+
+        // جمل عربية مفيدة (تأخذ السطر بالكامل)
+        const arabicSentences = [
+            "العلم يبني بيوتاً لا عماد لها", "القناعة كنز عظيم لا يفنى", 
+            "الصبر مفتاح لكل فرج قريب", "العقل السليم في الجسم السليم",
+            "بر الوالدين طريق إلى الجنة", "خير جليس في الزمان كتاب",
+            "من جد وجد ومن زرع حصد", "الوقت كالسيف إن لم تقطعه قطعك",
+            "الكلمة الطيبة صدقة تؤجر عليها", "النظافة من الإيمان فاحرص عليها",
+            "الصدق ينجي والكذب يهوي", "احترام المعلم واجب على كل طالب",
+            "العطف على الصغير من شيم الكرام", "الجار قبل الدار والرفيق قبل الطريق",
+            "بالعلم والعمل ترتقي الأمم", "الوطن غالي ويجب الدفاع عنه"
         ];
 
-        // الشعر (سيتم فرده كأشطر منفصلة ليتناسب مع المربعات الـ 6)
-        const basePoetry = [
-            "دقات قلب المرء قائلة", "إن الحياة دقائق وثواني",
-            "وما نيل المطالب بالتمني", "ولكن تؤخذ الدنيا غلابا",
-            "أنا لغة الأعراب من فطروا", "على الفصاحة من نبعي",
-            "السيف أصدق أنباء من الكتب", "في حده الحد بين الجد",
-            "الخيل والليل والبيداء", "والسيف والرمح والقرطاس",
-            "ألا ليت الشباب يعود يوماً", "فأخبره بما فعل المشيب",
-            "لا تحسبن المجد تمراً آكله", "لن تبلغ المجد حتى تلعق",
-            "إذا الشعب يوماً أراد الحياة", "فلا بد أن يستجيب القدر",
-            "الأم مدرسة إذا أعددتها", "أعددت شعباً طيب الأعراق",
-            "ومن هاب أسباب المنايا", "وإن يرق أسباب السماء"
+        // كلمات عربية قصيرة (يتم تكرارها لملء الفراغ)
+        const arabicWords = [
+            "مدرسة", "جامعة", "طبيب", "مهندس", "كتاب", "دفتر", "قلم", "علم", "نور",
+            "قمر", "شمس", "نجم", "سماء", "أرض", "بحر", "نهر", "جبل", "شجر", "ورد",
+            "صدق", "صبر", "شكر", "أمل", "عمل", "عقل", "قلب", "روح", "وطن", "سلام"
         ];
 
-        const baseKurdishSingle = [
-            "ئـ ب پ ت ج چ", "ح خ د ر ڕ ز ژ", "س ش ع غ ف ڤ", "ق ک گ ل ڵ م", "ن هـ ە و ۆ ی ێ", 
-            "دار، مار، کار، بار", "دەست، چاو، گوێ", "خۆزگە، هیوا، ژیان", "هەولێر، سلێمانی", "دهۆک، هەڵەبجە",
-            "کوردستان نیشتمانمە", "زمانی کوردی", "پێشمەرگە پارێزەرە", "کتێب باشترین هاوڕێیە", "زانست ڕووناکیە", 
-            "قسەی هەق تاڵە", "دڵۆپ دڵۆپ گۆمە", "بەرد سەنگینە", "دار دەچەمێتەوە", "کەس ناڵێت ترشە"
+        // جمل كردية مفيدة (تأخذ السطر بالكامل)
+        const kurdishSentences = [
+            "زانست ڕووناکیە و نەزانی تاریکیە", "پەرتووک باشترین هاوڕێی مرۆڤە",
+            "ڕێزی دایک و باوک ئەرکێکی گەورەیە", "ژینگە بپارێزە بۆ ژیانێکی تەندروست",
+            "کات وەک زێڕ وایە بیپارێزە", "زمانی دایک ناسنامەی نەتەوەیە",
+            "بە هەوڵدان دەگەیتە هەموو ئامانجێک", "کوردستان نیشتمانی جوان و شیرینمە",
+            "پەروەردە و فێرکردن بناغەی پێشکەوتنە", "مامۆستا چرای ڕووناککەرەوەی ڕێگامانە",
+            "ئاو سەرچاوەی ژیانە بیپارێزە", "نیشتمانپەروەری نیشانەی ئیمانە"
         ];
 
-        // --- 2. تجهيز الكمية المطلوبة لـ 50 صفحة (كل صفحة تأخذ 6 مربعات) ---
+        // كلمات كردية قصيرة (يتم تكرارها لملء الفراغ)
+        const kurdishWords = [
+            "زانست", "کتێب", "قەڵەم", "دەفتەر", "قوتابی", "خوێندنگە", "مامۆستا",
+            "خۆر", "مانگ", "هەور", "باران", "بەفر", "چیا", "ڕووبار", "دەشت",
+            "ئاشتی", "ئازادی", "هیوا", "خۆزگە", "ژیان", "دڵ", "گوڵ", "نیشتمان"
+        ];
+
+        // ==========================================
+        // 2. دوال مساعدة لبناء السطور
+        // ==========================================
+
+        // دالة إنشاء المحتوى (إما جملة تملأ السطر، أو كلمة تتكرر 4 مرات)
+        function getContentSpans(text, isSentence) {
+            if (isSentence) {
+                // الجملة تنزل مرة واحدة وتتمركز
+                return `<span class="text-span">${text}</span>`;
+            } else {
+                // الكلمة القصيرة تتكرر 4 مرات لتملأ السطر تماماً
+                let spans = '';
+                for(let i=0; i<4; i++) {
+                    spans += `<span class="text-span">${text}</span>`;
+                }
+                return spans;
+            }
+        }
+
+        // دالة توليد مجموعة تمرين (سطر أصلي + 4 منقط + سطر فارغ)
+        function generateExercise(text, isSentence, traceStyle) {
+            const spans = getContentSpans(text, isSentence);
+            const lineClass = isSentence ? "line-sentence" : "line-words";
+            
+            return `
+                <div class="notebook-line ${lineClass} text-master">${spans}</div>
+                <div class="notebook-line ${lineClass} dynamic-trace ${traceStyle}">${spans}</div>
+                <div class="notebook-line ${lineClass} dynamic-trace ${traceStyle}">${spans}</div>
+                <div class="notebook-line ${lineClass} dynamic-trace ${traceStyle}">${spans}</div>
+                <div class="notebook-line ${lineClass} dynamic-trace ${traceStyle}">${spans}</div>
+                <div class="notebook-line ${lineClass} text-empty">${spans}</div>
+            `;
+        }
+
+        // ==========================================
+        // 3. بناء صفحات الدفتر
+        // ==========================================
         
-        // 30 صفحة عربي = 180 مربع
-        let arabic180 = [];
-        while(arabic180.length < 180) { arabic180 = arabic180.concat(baseArabicSingle); }
-        arabic180 = arabic180.slice(0, 180);
-
-        // 10 صفحات شعر = 60 مربع
-        let poetry60 = [];
-        while(poetry60.length < 60) { poetry60 = poetry60.concat(basePoetry); }
-        poetry60 = poetry60.slice(0, 60);
-
-        // 10 صفحات كردي = 60 مربع
-        let kurdish60 = [];
-        while(kurdish60.length < 60) { kurdish60 = kurdish60.concat(baseKurdishSingle); }
-        kurdish60 = kurdish60.slice(0, 60);
-
-        // --- 3. دالة بناء المربع الواحد (7 أسطر) ---
-        function generateBlock(text) {
-            let block = `<div class="practice-block">`;
-            block += `<div class="line-row master">${text}</div>`;
-            for(let i=0; i<4; i++) block += `<div class="line-row trace">${text}</div>`;
-            for(let i=0; i<2; i++) block += `<div class="line-row empty"></div>`;
-            block += `</div>`;
-            return block;
-        }
-
-        // --- 4. التجميع ووضعها في الصفحات الأفقية ---
         const container = document.getElementById('pdf-container');
         let htmlContent = '';
 
-        // دالة مساعدة لإنشاء صفحة بـ 6 مربعات
-        function createPage(dataArray, startIndex, lang = "ar") {
-            return `
-            <div class="a4-paper-landscape" ${lang === 'ku' ? 'lang="ku"' : ''}>
-                <div class="grid-6-blocks">
-                    ${generateBlock(dataArray[startIndex])}     <!-- أعلى اليمين -->
-                    ${generateBlock(dataArray[startIndex+1])}   <!-- أعلى الوسط -->
-                    ${generateBlock(dataArray[startIndex+2])}   <!-- أعلى اليسار -->
-                    ${generateBlock(dataArray[startIndex+3])}   <!-- أسفل اليمين -->
-                    ${generateBlock(dataArray[startIndex+4])}   <!-- أسفل الوسط -->
-                    ${generateBlock(dataArray[startIndex+5])}   <!-- أسفل اليسار -->
-                </div>
-            </div>`;
+        // إنشاء 50 صفحة
+        // الصفحة = 8 تمارين (2 في كل قسم من الأقسام الأربعة)
+        for (let page = 1; page <= 50; page++) {
+            
+            let isSentence = false;
+            let currentList = [];
+            let isKurdish = false;
+
+            // تحديد المحتوى بناءً على رقم الصفحة
+            if (page <= 15) {
+                // الصفحات 1 إلى 15: جمل عربية
+                currentList = arabicSentences;
+                isSentence = true;
+            } 
+            else if (page <= 25) {
+                // الصفحات 16 إلى 25: كلمات عربية (متكررة)
+                currentList = arabicWords;
+                isSentence = false;
+            } 
+            else if (page <= 35) {
+                // الصفحات 26 إلى 35: جمل كردية
+                currentList = kurdishSentences;
+                isSentence = true;
+                isKurdish = true;
+            } 
+            else {
+                // الصفحات 36 إلى 50: كلمات كردية (متكررة)
+                currentList = kurdishWords;
+                isSentence = false;
+                isKurdish = true;
+            }
+
+            const langAttr = isKurdish ? 'lang="ku"' : '';
+            htmlContent += `<div class="a4-paper" ${langAttr}>`;
+
+            // تقسيم الورقة لـ 4 مربعات (يمين ويسار / أعلى وأسفل)
+            for(let quadrant = 0; quadrant < 4; quadrant++) {
+                htmlContent += `<div class="quadrant">`;
+                
+                // كل ربع (مربع) فيه تمرينين (كلمتين أو جملتين مختلفتين)
+                for(let ex = 0; ex < 2; ex++) {
+                    // اختيار جملة أو كلمة عشوائية من القائمة المحددة للصفحة
+                    const randomIndex = Math.floor(Math.random() * currentList.length);
+                    const text = currentList[randomIndex];
+                    
+                    // الحالة الافتراضية للتتبع عند التحميل
+                    htmlContent += generateExercise(text, isSentence, 'text-trace');
+                }
+                
+                htmlContent += `</div>`; 
+            }
+
+            htmlContent += `</div>`; 
         }
 
-        // أ) 30 صفحة عربي (180 مربع)
-        for(let i=0; i < arabic180.length; i+=6) {
-            htmlContent += createPage(arabic180, i);
-        }
-
-        // ب) 10 صفحات شعر (60 مربع)
-        for(let i=0; i < poetry60.length; i+=6) {
-            htmlContent += createPage(poetry60, i);
-        }
-
-        // ج) 10 صفحات كردي (60 مربع)
-        for(let i=0; i < kurdish60.length; i+=6) {
-            htmlContent += createPage(kurdish60, i, "ku");
-        }
-
-        // وضع المحتوى في الصفحة
         container.innerHTML = htmlContent;
+
+        // تطبيق الإعدادات عند بدء التشغيل
+        updateSettings();
 
     </script>
 </body>
